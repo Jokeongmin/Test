@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <conio.h>
+#include <Windows.h>
+#include <stdlib.h>
+
+void gotoxy(int row, int col);
+void draw(void);
+void gotoxy(int row, int col) {
+	COORD pos = { col,row };
+	SetConsoleCursorPosition(
+		GetStdHandle(STD_OUTPUT_HANDLE),
+		pos
+	);
+}
+int tick = 0;
+char map[10][20], front[10][20];
+int randint(int, int );
+// low 이상 high 이하 난수를 발생시키는 함수
+int randint(int low, int high) {
+	int rnum = rand() % (high - low + 1) + low;
+	return rnum;
+}
+void draw(void) {
+	for (int i = 0; i < 10; i++) {
+		for (int j = 0; j < 20; j++) {
+			if (front[i][j] != map[i][j]) {
+				front[i][j] = map[i][j];
+				gotoxy(i, j);
+				printf("%c", front[i][j]);
+			}
+		}
+	}
+}
+
+int main(void) {
+	//맵 초기화
+	for (int i = 0; i < 10; i++) {
+		for (int j = 0; j < 20; j++) {
+			if (i == 0 || i == 9 || j == 0 || j == 19)
+				map[i][j] = '#';
+			else
+				map[i][j] = ' ';
+		}
+	}
+	//난수로 적이 움직이게 만들기.
+    //적 만들기
+	map[8][17] = '@';
+	map[1][1] = '*';
+	int dx[4] = { -1,1,0,0 };
+	int dy[4] = { 0,0,-1,1 };
+	int dx_a[4] = { -1,1,0,0 };
+	int dy_a[4] = { 0,0,-1,1 };
+	int x = 1, y = 1, x_a = -18, y_a = 18;
+	int dir = 3;//방향(directino), 처음에는 오른쪽.
+	while (1) {
+		//'w','s','a','d' : 이동, 'q': 종료
+		//'q'를 누르면 종료
+		if (_kbhit()) {
+			int key = _getch();
+			switch (key) {
+			case 'w': dir = 0; break; //up(x-1,y+0)
+			case 's': dir = 1; break; //down(x+1,y+0)
+			case 'a': dir = 2; break; //left(x+0,y-1) 
+			case 'd': dir = 3; break; //right(x+0,y+1)
+			case 'q': return 0;
+			}
+		}
+		int dir_a = randint(0, 3);
+		
+		//0.1 초 마다 '*' 오른쪽으로 이동
+		if (tick % 100 == 0) {
+			// nx , ny; 다음 위치
+			int nx = x + dx[dir];
+			int ny = y + dy[dir];
+			int nx_a = x + dx_a[dir_a];
+			int ny_a = y + dy_a[dir_a];
+			// (nx,ny)로 이동할 수 없으면 pass 
+			if (nx > 0 && nx < 9 && ny > 0 && ny < 19) {
+				map[x][y] = ' ',map[x_a][y_a] = ' ';//지우고
+				x = nx; y = ny; x_a = nx_a; y_a = ny_a;// 이동//새 위치에 출력
+				map[x][y] = '*';
+
+			}
+		}
+		draw();
+		Sleep(10);
+		tick += 10;
+	}
+}
