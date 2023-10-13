@@ -42,7 +42,8 @@ int main(void) {
 				map[i][j] = ' ';
 		}
 	}
-	//난수로 적이 움직이게 만들기.
+	
+	
     //적 만들기
 	map[8][17] = '@';
 	map[1][1] = '*';
@@ -50,7 +51,8 @@ int main(void) {
 	int dy[4] = { 0,0,-1,1 };
 	int dx_a[4] = { -1,1,0,0 };
 	int dy_a[4] = { 0,0,-1,1 };
-	int x = 1, y = 1, x_a = -18, y_a = 18;
+	int x = 1, y = 1, x_a = 8, y_a = 17;
+	int dir_a = 2;//적의 시작방향은 위쪽.
 	int dir = 3;//방향(directino), 처음에는 오른쪽.
 	while (1) {
 		//'w','s','a','d' : 이동, 'q': 종료
@@ -65,6 +67,7 @@ int main(void) {
 			case 'q': return 0;
 			}
 		}
+		//적에게 난수값 할당 시키기.
 		int dir_a = randint(0, 3);
 		
 		//0.1 초 마다 '*' 오른쪽으로 이동
@@ -72,14 +75,23 @@ int main(void) {
 			// nx , ny; 다음 위치
 			int nx = x + dx[dir];
 			int ny = y + dy[dir];
-			int nx_a = x + dx_a[dir_a];
-			int ny_a = y + dy_a[dir_a];
+			//nx_a,ny_a 적의 다음 위치
+			int nx_a = x_a + dx_a[dir_a];
+			int ny_a = y_a + dy_a[dir_a];
 			// (nx,ny)로 이동할 수 없으면 pass 
 			if (nx > 0 && nx < 9 && ny > 0 && ny < 19) {
-				map[x][y] = ' ',map[x_a][y_a] = ' ';//지우고
-				x = nx; y = ny; x_a = nx_a; y_a = ny_a;// 이동//새 위치에 출력
-				map[x][y] = '*';
-
+				map[x][y] = ' '; //지우고
+				x = nx; y = ny; // 이동
+				map[x][y] = '*';  //새 위치에 출력
+			}
+			//(nx_a,ny_a)로 이동할 수 없으면 pass
+			if (nx_a > 0 && nx_a < 9 && ny_a >0 && ny_a < 19) {
+				map[x_a][y_a] = ' '; //지우고 
+				x_a = nx_a; y_a = ny_a; //이동 
+				map[x_a][y_a] = '@'; //새 위치에 출력
+			}
+			if ((x, y) == (x_a, y_a)) {
+				return 0;
 			}
 		}
 		draw();
