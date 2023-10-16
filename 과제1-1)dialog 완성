@@ -1,0 +1,47 @@
+//dialog()함수를 시작하기 전에 선언해야 하는 전역 변수. 
+int rmt = DIALOG_DURATION_SEC;
+int high_map_size;
+
+	
+void dialog(char message[]) {
+    //표기 될 행과 열의 길이 선언. 
+		int show_dialog_col = 10;
+		int show_dialog_row = 3;
+
+		
+		while(rmt>0){//카운트 다운이 들어가고 0이 되기 전까지만 실행되는 while반복문. 
+    // gotoxy를 이용해서 커서를 위치시키고 
+		gotoxy(show_dialog_col, show_dialog_row);
+		printf("***************");//프린트 함수를 이용해서 그 위치에 출력시키기.
+		gotoxy(show_dialog_col + 1, show_dialog_row);
+		printf("%d", rmt); printf("%s", message);
+		gotoxy(show_dialog_col + 2, show_dialog_row);
+		printf("***************");
+		Sleep(1000);
+		
+		rmt--;//카운트 다운
+		
+
+    //맵 불러오기
+		for (int row = 0; row < N_ROW; row++) {
+			for (int col = 0; col < N_COL; col++) {
+
+				printxy(back_buf[row][col], row, col);
+				
+			}
+		}
+	}	
+}
+
+
+
+
+그리고 sample.c 에서
+{ ... }
+display();
+Sleep(10);
+tick += 10;
+//아래 두가지 추가함.
+char message[4] = "초";
+dialog(message);
+}
