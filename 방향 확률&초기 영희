@@ -1,0 +1,145 @@
+//mugunghwa.c
+
+#include "jjuggumi.h"
+#include "canvas.h"
+#include "keyin.h"
+#include <stdio.h>
+
+
+#define DIR_UP		0//y축 대칭 1
+#define DIR_DOWN	1//y축 대칭 0
+#define DIR_LEFT	2
+#define DIR_RIGHT	3
+
+void mugunghwa_init(void);
+void move_random_m(int player, int dir);
+void move_manual(key_t key);
+void move_tail(int i, int nx, int ny);
+
+int px[PLAYER_MAX], py[PLAYER_MAX], period[PLAYER_MAX];  // 각 플레이어 위치, 이동 주기
+
+void mugunghwa_init() {
+	map_init(10, 40, true); // 맵 만들기 
+	int x, y;
+	for (int i = 0; i < n_player; i++) {
+		//같은 자리가 나오면 다시 생성
+		do {
+			x = randint(1, N_ROW - 2);
+			y = N_COL - 2;
+		} while (!placable(x, y));
+		px[i] = x;
+		py[i] = y;
+		period[i] = randint(100, 500);
+
+		back_buf[px[i]][py[i]] = '0' + i;  // (0 .. n_player-1)
+	}
+
+	tick = 0;
+}
+
+void move_random_m(int player, int dir) {
+	int p = player;  // 이름이 길어서...
+	int nx, ny;  // 움직여서 다음에 놓일 자리
+
+	// 움직일 공간이 없는 경우는 없다고 가정(무한 루프에 빠짐)	
+
+	int random_dir = randint(1, 100);
+
+	// 70% 확률로 왼쪽으로 이동
+	if (random_dir <= 70) {
+		nx = px[p];
+		ny = py[p] - 1;
+	}
+	// 10% 확률로 위로 이동
+	else if (random_dir <= 80) {
+		nx = px[p] - 1;
+		ny = py[p];
+	}
+	// 10% 확률로 아래로 이동
+	else if (random_dir <= 90) {
+		nx = px[p] + 1;
+		ny = py[p];
+	}
+	// 10% 확률로 제자리에 머물기
+	else {
+		nx = px[p];
+		ny = py[p];
+	}
+
+	// 이동 가능한지 확인하고 꼬리를 이동
+	if (placable(nx, ny)) {
+		move_tail(p, nx, ny);
+	}
+}
+
+void mugunghwa(void) {
+	mugunghwa_init();
+
+	system("cls");
+	display();
+	while (1) {
+		// player 0만 손으로 움직임(4방향)
+		key_t key = get_key();
+		if (key == K_QUIT) {
+			break;
+		}
+		else if (key != K_UNDEFINED) {
+			move_manual(key);
+		}
+
+		// player 1 부터는 랜덤으로 움직임(8방향)
+		for (int i = 1; i < n_player; i++) {
+			if (tick % period[i] == 0) {
+				move_random_m(i, -1);
+			}
+		}
+
+
+		display();
+		Sleep(10);
+		tick += 10;
+		char message[4] = "초";
+		dialog(message);
+
+	}
+
+}
+
+
+
+
+
+
+//canvas.c
+//map_init함수만 약간 변경
+void map_init(int n_row, int n_col,bool star) {
+	// 두 버퍼를를 완전히 비우기
+	for (int i = 0; i < ROW_MAX; i++) {
+		for (int j = 0; j < COL_MAX; j++) {
+			back_buf[i][j] = front_buf[i][j] = ' ';
+		}
+	}
+
+	N_ROW = n_row;
+	N_COL = n_col;
+	for (int i = 0; i < N_ROW; i++) {
+		for (int j = 0; j < N_COL; j++) {
+			if (i == 0 || i == N_ROW - 1 || j == 0 || j == N_COL - 1) {
+				back_buf[i][j] = '*';
+			}
+			else if (star && j == 1 && i >= 3 && i <= 6) {
+				back_buf[i][j] = '#';
+			}
+			else {
+				back_buf[i][j] = ' ';
+			}
+		}
+	}
+}
+
+
+
+
+
+//canvas.h 21번줄 void map_init(int n_row, int n_col,bool star);로 변경
+//sample.c 19번줄 map_init(15, 40, false);로 변경
