@@ -1,0 +1,82 @@
+#include "jjuggumi.h"
+#include "canvas.h"
+#include "keyin.h"
+#include <stdio.h>
+
+#define DIR_UP		0//y축 대칭 1
+#define DIR_DOWN	1//y축 대칭 0
+#define DIR_LEFT	2
+#define DIR_RIGHT	3
+
+void mugunghwa_init(void);
+void move_random_m(int player, int dir);
+void move_manual(key_t key);
+void move_tail(int i, int nx, int ny);
+
+int px[PLAYER_MAX], py[PLAYER_MAX], period[PLAYER_MAX];  // 각 플레이어 위치, 이동 주기
+
+void mugunghwa_init() {
+	map_init(10,40); // 맵 만들기 
+	int x, y;
+	for (int i = 0; i < n_player; i++) {
+		//같은 자리가 나오면 다시 생성
+		do {
+			x = randint(1, N_ROW - 2);
+			y = N_COL - 2;
+		} while (!placable(x, y));
+		px[i] = x;
+		py[i] = y;
+		period[i] = randint(100, 500);
+
+		back_buf[px[i]][py[i]] = '0' + i;  // (0 .. n_player-1)
+	}
+
+	tick = 0;
+}
+
+void move_random_m(int player, int dir) {
+	int p = player;  // 이름이 길어서...
+	int nx, ny;  // 움직여서 다음에 놓일 자리
+
+	// 움직일 공간이 없는 경우는 없다고 가정(무한 루프에 빠짐)	
+
+	do {
+		nx = px[p] + randint(-1, 1);
+		ny = py[p] + randint(-1, 1);
+	} while (!placable(nx, ny));
+
+	move_tail(p, nx, ny);
+}
+
+void mugunghwa(void) {
+	mugunghwa_init();
+
+	system("cls");
+	display();
+	while (1) {
+		// player 0만 손으로 움직임(4방향)
+		key_t key = get_key();
+		if (key == K_QUIT) {
+			break;
+		}
+		else if (key != K_UNDEFINED) {
+			move_manual(key);
+		}
+
+		// player 1 부터는 랜덤으로 움직임(8방향)
+		for (int i = 1; i < n_player; i++) {
+			if (tick % period[i] == 0) {
+				move_random_m(i, -1);
+			}
+		}
+
+
+		display();
+		Sleep(10);
+		tick += 10;
+		char message[4] = "초";
+		dialog(message);
+
+	}
+
+}
