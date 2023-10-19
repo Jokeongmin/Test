@@ -1,0 +1,62 @@
+void say_m(void) {
+	
+	while (1) {
+		if (tick == 10) {
+			gotoxy(11, 0);
+			printf("무");
+		}
+		if(tick == 50){
+			gotoxy(11,2);
+			printf(" 궁");
+		}
+		if (tick == 150) {
+			gotoxy(11,6);
+			printf(" 화");
+		}
+		if (tick == 300) {
+			gotoxy(11,10);
+			printf(" 꽃");
+		}
+		if (tick == 600) {
+			gotoxy(11,14);
+			printf(" 이");
+		}
+		if (tick == 850) {
+			gotoxy(11,18);
+			printf(" 피");
+		}
+		if (tick == 950) {
+			gotoxy(11, 22);
+			printf(" 었");
+		}
+		if (tick == 1000) {
+			gotoxy(11,26);
+			printf(" 습");
+		}
+		if (tick == 1030) {
+			gotoxy(11,30);
+			printf(" 니");
+		}
+		if (tick == 1040) {
+			gotoxy(11,34);
+			printf(" 다");
+		}
+		if (tick > 1040) {
+			tick = 0;
+			system("cls");
+			
+		}
+		display();
+		for (int row = 0; row < N_ROW; row++) {
+			for (int col = 0; col < N_COL; col++) {
+
+				printxy(back_buf[row][col], row, col);
+				front_buf[row][col] = back_buf[row][col];
+			}
+		}
+		
+		break;
+
+	}
+
+}
