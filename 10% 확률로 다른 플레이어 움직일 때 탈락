@@ -1,0 +1,58 @@
+//void mugunghwa(void)함수만 고침
+
+
+void mugunghwa(void) {
+	mugunghwa_init();
+
+	system("cls");
+
+	display();
+	yunghee_1();
+	count = 0;
+	while (1) {
+		// player 0만 손으로 움직임(4방향)
+		key_t key = get_key();
+		if (key == K_QUIT) {
+			break;
+		}
+		else if (key != K_UNDEFINED) {
+			move_manual(key);
+		}
+
+		// player 1 부터는 랜덤으로 움직임
+		for (int i = 1; i < n_player; i++) {
+			if (count == 0) {
+				if (tick % period[i] == 0) {
+					dir = dir_randonm();
+					move_random_m(i, dir);
+				}
+			}
+			else if (count == 1) {
+				int a = randint(1, 10);
+				if (a == 1) {
+					if (tick % period[i] == 0) {
+						dir = dir_randonm();
+						move_random_m(i, dir);
+						player[i] = 0;
+						back_buf[px[i]][py[i]] = ' ';
+					}
+				}
+				
+			}
+
+		}
+
+
+
+		Sleep(10);
+		tick += 10;
+		display();
+		//yunghee_1();
+		say_m();
+		char message[4] = "초";
+		//dialog_m(message);
+
+
+	}
+
+}
